@@ -4,7 +4,37 @@
 #include <string>
 #include <algorithm>
 #include <random>
+
 using namespace std;
+
+// Terminal colors
+#define RESET "\033[0m"
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define BLUE "\033[34m"
+#define CYAN "\033[36m"
+#define MAGENTA "\033[35m"
+#define BLACK "\033[30m"
+#define WHITE "\033[37m"
+#define BRIGHT_BLACK "\033[90m"  
+#define BRIGHT_RED "\033[91m"
+#define BRIGHT_GREEN "\033[92m"
+#define BRIGHT_YELLOW "\033[93m"
+#define BRIGHT_BLUE "\033[94m"
+#define BRIGHT_MAGENTA "\033[95m"
+#define BRIGHT_CYAN "\033[96m"
+#define BRIGHT_WHITE "\033[97m"
+
+// Terminal styles
+#define BOLD "\033[1m"
+#define DIM "\033[2m"
+#define ITALIC "\033[3m"
+#define UNDERLINE "\033[4m"
+#define BLINK "\033[5m"
+#define REVERSE "\033[7m"
+#define HIDDEN "\033[8m"
+#define STRIKETHROUGH "\033[9m"
 
 void createInputFile();
 double calcMean(vector<double> nums);
@@ -21,42 +51,51 @@ int main() {
     // Read input file
     ifstream in(inputFile);
     if (!in) {
-        cerr << "Error: Could not open " << inputFile << "\n";
+        cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
+            << "Could not open " << inputFile << RESET << "\n";
 
         // Ask to create a randomly filled input file if no input file already exists
         while (true) {
-            cout << "Create randomly filled input file? (y/n): ";
+            cout << WHITE << BOLD 
+                << "Create randomly filled input file? (y/n): "
+                << RESET;
             cin >> yn;
             cout << endl;
 
             if (yn == 'y' || yn == 'n') break;
             
-            cout << "Error: Invalid input! Try again." << endl;
+            cout << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
+                << "Invalid input! Try again." << RESET << endl;
         }
 
         if (yn == 'y') {
             createInputFile();
         } else if (yn =='n') {
-            cout << "An input file is required. Quitting..." << endl;
+            cout << BRIGHT_RED << BOLD << "An input file is required. Quitting..." << RESET << endl;
             return 1;   
         } else return 1;
     }
 
     // Ask the user how many lines to select
     int numLines = 0;
-    cout << "How many lines do you want to select? (integer >= 0): ";
+    cout << WHITE << BOLD 
+        << "How many lines do you want to select? (integer >= 0): "
+        << RESET;
     cin >> numLines;
     cout << endl;
 
     // Ask whether to sort the h->l, l->h, or none (Default = l->h)
     string highLow = "lh";
     while (true) {
-        cout << "How should the output be sorted? (\"hl\"=high->low, \"lh\"=low->high, or \"n\"=none): ";
+        cout << WHITE << BOLD 
+            << "How should the output be sorted? (\"hl\"=high->low, \"lh\"=low->high, or \"n\"=none): "
+            << RESET;
         cin >> highLow;
         cout << endl;
         if (highLow == "lh" || highLow == "hl" || highLow == "n") break;
 
-        cout << "Error: Invalid input! Try again." << endl;
+        cout << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
+            << "Invalid input! Try again." << RESET << endl;
     }
 
     // Get all of the lines in the file
@@ -69,8 +108,8 @@ int main() {
     in.close();
 
     if (lines.size() < static_cast<size_t>(numLines)) {
-        cerr << "Error: Need at least " << numLines << " lines, but only "
-                  << lines.size() << " found.\n";
+        cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA << 
+            "Need at least " << numLines << " lines, but only " << lines.size() << " found.\n" << RESET;
         return 1;
     }
 
@@ -85,7 +124,8 @@ int main() {
         try {
             topLines.push_back(stod(lines[i]));
         } catch (...) {
-            cerr << "Error: Non-numeric line encountered.\n";
+            cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
+                << "Non-numeric line encountered.\n" << RESET;
             return 1;
         }
     }
@@ -104,7 +144,8 @@ int main() {
     // Write sorted output
     ofstream out(outputFile);
     if (!out) {
-        cerr << "Error: Could not open " << outputFile << "\n";
+        cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
+            << "Could not open " << outputFile << RESET << "\n";
         return 1;
     }
 
@@ -115,23 +156,24 @@ int main() {
     out.close();
 
     if (sorted) {
-        cout << "Done! Wrote and sorted " << numLines << " randomized lines to "
-              << outputFile << "\n";
+        cout << GREEN << "Done! Wrote and sorted " << numLines << " randomized lines to "
+              << outputFile << RESET << "\n";
     } else {
-        cout << "Done! Wrote " << numLines << " randomized lines to "
-              << outputFile << "\n";
+        cout << GREEN << "Done! Wrote " << numLines << " randomized lines to "
+              << outputFile << RESET << "\n";
     }
 
     // Output basic statistics
     double mean = calcMean(topLines), med = calcMedian(topLines), 
         min = calcMin(topLines), max = calcMax(topLines);
-    cout << "\nCount: " << topLines.size() << endl;
-    cout << "Mean: " << mean << endl;
-    cout << "Median: " << med << endl;
-    cout << "Min: " << min << endl;
-    cout << "Max: " << max << endl;
+    cout << BLUE << "\nCount: " << RESET << CYAN << topLines.size() << RESET << endl;
+    cout << BLUE << "Mean: " << RESET << CYAN << mean << RESET << endl;
+    cout << BLUE << "Median: " << RESET << CYAN << med << RESET << endl;
+    cout << BLUE << "Min: " << RESET << CYAN << min << RESET << endl;
+    cout << BLUE << "Max: " << RESET << CYAN << max << RESET << endl;
     calcStDevVar(topLines, mean);
 
+    cout << RESET << endl;
     return 0;
 }
 
@@ -157,19 +199,21 @@ void createInputFile() {
         inFile.close();
         return;
     } else {
-        cerr << "Error: input.txt file not created successfully." << "\n";
+        cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
+            << "input.txt file not created successfully." << RESET << "\n";
         return;
     }
 }
 
 double calcMean(vector<double> nums) {
-    double sum = 0;
+    double sum = 0, mean = 0;
     int count = 0;
     for (double n : nums) {
         sum += n;
         count++;
     }
-    return sum / count;
+    mean = sum / count;
+    return mean;
 }
 
 double calcMedian(vector<double> nums) {
@@ -181,7 +225,8 @@ double calcMedian(vector<double> nums) {
     int midpoint = count / 2;
 
     // Return the value in the middle of the vector
-    return nums[midpoint];
+    double mid = nums[midpoint];
+    return mid;
 }
 
 void calcStDevVar(vector<double> nums, double mean) {
@@ -197,10 +242,10 @@ void calcStDevVar(vector<double> nums, double mean) {
     double sampVar = squaredSumDiff / (count - 1);
     double sampStDev = sqrt(sampVar);
 
-    cout << "Population variance: " << popVar << endl;
-    cout << "Population standard deviation: " << popStDev << endl;
-    cout << "Sample variance: " << sampVar << endl;
-    cout << "Sample standard deviation: " << sampStDev << endl;
+    cout << BLUE << "Population variance: " << RESET << CYAN << popVar << RESET << endl;
+    cout << BLUE << "Population standard deviation: " << RESET << CYAN << popStDev << RESET << endl;
+    cout << BLUE << "Sample variance: " << RESET << CYAN << sampVar << RESET << endl;
+    cout << BLUE << "Sample standard deviation: " << RESET << CYAN << sampStDev << RESET << endl;
 }
 
 double calcMin(vector<double> nums) {    
