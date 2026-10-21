@@ -8,6 +8,7 @@ EXE = exe
 LIBS = random.hpp
 OUT = output.txt
 OTHER = *.o output.txt
+IN = input.txt
 
 $(EXE): $(OBJS)
 	$(CC) $(LFLAGS) $(OBJS) -o $(EXE)
@@ -21,11 +22,15 @@ clean:
 clear:
 	del /f /q $(OTHER)
 
+deepclean:
+	del /f /q $(EXE) $(OBJS) $(OTHER) $(IN)
+
 remake: clean $(EXE)
 
 rmk: clean $(EXE)
 
-clrOut: 
-	del /f /q $(OUT)
+deepremake: clean $(EXE)
+
+dprmk: deepclean $(EXE)
 
 clr: clear

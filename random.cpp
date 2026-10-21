@@ -70,19 +70,34 @@ int main() {
 
         if (yn == 'y') {
             createInputFile();
+            in.clear();
+            in.open(inputFile);
         } else if (yn =='n') {
-            cout << BRIGHT_RED << BOLD << "An input file is required. Quitting..." << RESET << endl;
+            cout << BRIGHT_RED << BOLD << "An input file is required. Quitting..." << RESET << " " << endl;
             return 1;   
         } else return 1;
+
+        cin.clear();
+        cin.ignore(10000, '\n');
     }
 
     // Ask the user how many lines to select
     int numLines = 0;
-    cout << WHITE << BOLD 
-        << "How many lines do you want to select? (integer >= 0): "
-        << RESET;
-    cin >> numLines;
-    cout << endl;
+    while (true) {
+        cout << WHITE << BOLD 
+            << "How many lines do you want to select? (integer >= 0): "
+            << RESET;
+        if (cin >> numLines && numLines >= 0) {
+            cout << endl;
+            break;
+        }
+
+        cout << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
+            << "Invalid input! Try again." << RESET << " " << endl;
+
+        cin.clear();
+        cin.ignore(10000, '\n');
+    }
 
     // Ask whether to sort the h->l, l->h, or none (Default = l->h)
     string highLow = "lh";
@@ -95,21 +110,27 @@ int main() {
         if (highLow == "lh" || highLow == "hl" || highLow == "n") break;
 
         cout << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
-            << "Invalid input! Try again." << RESET << endl;
+            << "Invalid input! Try again." << RESET << " " << endl;
+
+        cin.clear();
+        cin.ignore(10000, '\n');
     }
 
     // Get all of the lines in the file
     vector<string> lines;
-    string line;
+    string line;    
+    bool INopen = in.is_open();
     while (getline(in, line)) {
         if (!line.empty())
             lines.push_back(line);
     }
     in.close();
+    INopen = in.is_open();
 
     if (lines.size() < static_cast<size_t>(numLines)) {
-        cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA << 
-            "Need at least " << numLines << " lines, but only " << lines.size() << " found.\n" << RESET;
+        cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
+            << "Need at least " << numLines << " lines, but only " 
+            << lines.size() << " found.\n" << RESET << " ";
         return 1;
     }
 
@@ -125,7 +146,7 @@ int main() {
             topLines.push_back(stod(lines[i]));
         } catch (...) {
             cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
-                << "Non-numeric line encountered.\n" << RESET;
+                << "Non-numeric line encountered.\n" << RESET << " ";
             return 1;
         }
     }
@@ -145,7 +166,7 @@ int main() {
     ofstream out(outputFile);
     if (!out) {
         cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
-            << "Could not open " << outputFile << RESET << "\n";
+            << "Could not open " << outputFile << RESET << " \n";
         return 1;
     }
 
@@ -157,10 +178,10 @@ int main() {
 
     if (sorted) {
         cout << GREEN << "Done! Wrote and sorted " << numLines << " randomized lines to "
-              << outputFile << RESET << "\n";
+              << outputFile << RESET << " \n";
     } else {
         cout << GREEN << "Done! Wrote " << numLines << " randomized lines to "
-              << outputFile << RESET << "\n";
+              << outputFile << RESET << " \n";
     }
 
     // Output basic statistics
@@ -187,20 +208,21 @@ void createInputFile() {
     uniform_real_distribution<double> distDoub(-500.00, 500.000);
 
     ofstream inFile("input.txt");
-    if (inFile.is_open()) {
+    bool open = inFile.is_open();
+    if (open) {
         for (int i = 0; i < limit(g); i++) {
             if (i % randMod(g) == 0) {
                 inFile << distDoub(g) << "\n";
             } else {
                 inFile << distInt(g) << "\n";
             }
-        }
-
-        inFile.close();
+        }      
+        open = inFile.is_open();
+        cout << GREEN << "input.txt file created successfully. " << RESET << " \n";
         return;
     } else {
         cerr << BRIGHT_RED << BOLD << "Error: " << RESET << MAGENTA 
-            << "input.txt file not created successfully." << RESET << "\n";
+            << "input.txt file not created successfully." << RESET << " \n";
         return;
     }
 }
@@ -223,16 +245,22 @@ double calcMedian(vector<double> nums) {
     // Get the count and midpoint
     int count = nums.size();
     int midpoint = count / 2;
+    double mid = 0;
 
-    // Return the value in the middle of the vector
-    double mid = nums[midpoint];
+    // If the midpoint is an even index have mid be the avg of count/2 and (count/2)-1
+    if (midpoint % 2 == 0) {
+        mid = (nums[midpoint] + nums[midpoint-1]) / 2;
+    } else {
+        mid = nums[midpoint];
+    }
+    
     return mid;
 }
 
 void calcStDevVar(vector<double> nums, double mean) {
     double squaredSumDiff = 0;
     for (double n : nums) {
-        squaredSumDiff = (n - mean) * (n - mean);
+        squaredSumDiff += (n - mean) * (n - mean);
     }
 
     int count = nums.size();
