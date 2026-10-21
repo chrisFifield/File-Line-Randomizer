@@ -217,6 +217,7 @@ void createInputFile() {
                 inFile << distInt(g) << "\n";
             }
         }      
+        inFile.close();
         open = inFile.is_open();
         cout << GREEN << "input.txt file created successfully. " << RESET << " \n";
         return;
